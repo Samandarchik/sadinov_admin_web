@@ -34,7 +34,16 @@ export async function getStats(): Promise<Stats> {
 // --- Orders ---
 export async function listOrders(): Promise<Order[]> {
   const r = await http.get('/admin/orders/');
-  return r.data;
+  return (r.data as any[]).map((o) => ({
+    ...o,
+    order_id: o.order_id ?? o.id,
+    total: o.total ?? o.price,
+    currency: o.currency ?? "so'm",
+    items: (o.items ?? []).map((it: any) => ({
+      ...it,
+      price: it.price ?? it.unit_price,
+    })),
+  }));
 }
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
   await http.patch(`/admin/orders/${orderId}/status/`, { status });

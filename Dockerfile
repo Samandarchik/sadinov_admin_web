@@ -10,6 +10,7 @@ COPY . .
 
 # Build-time env: API manzili va base href.
 # docker build --build-arg VITE_API_BASE_URL=http://31.187.74.228:8001 ...
+#dfghjk
 ARG VITE_API_BASE_URL=http://31.187.74.228:8001
 ARG VITE_BASE_HREF=/
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
