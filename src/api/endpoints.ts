@@ -43,6 +43,7 @@ export async function listOrders(): Promise<Order[]> {
       ...it,
       price: it.price ?? it.unit_price,
     })),
+    service_ids: o.service_ids ?? [],
   }));
 }
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {

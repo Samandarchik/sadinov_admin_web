@@ -72,6 +72,7 @@ export interface Order {
   longitude?: number;
   comment?: string;
   items: OrderItem[];
+  service_ids?: number[];
   total: number;
   currency: string;
   status: OrderStatus;

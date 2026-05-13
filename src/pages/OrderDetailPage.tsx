@@ -13,6 +13,7 @@ import {
   Package,
   Phone,
   Share2,
+  Wrench,
   ShoppingBag,
   Trash2,
   Truck,
@@ -27,11 +28,12 @@ import { PageSpinner } from '../components/Spinner';
 import {
   deleteOrder,
   listOrders,
+  listServices,
   updateOrderStatus,
 } from '../api/endpoints';
 import { absUrl, errorMessage } from '../api/client';
 import { formatDate, formatPrice, STATUS_COLOR, STATUS_LABEL } from '../lib/format';
-import type { Order, OrderStatus } from '../types';
+import type { Order, OrderStatus, Service } from '../types';
 
 const STATUS_STEPS: Array<{ status: OrderStatus; label: string; icon: LucideIcon }> = [
   { status: 'pending', label: 'Kutilmoqda', icon: ClipboardList },
@@ -44,6 +46,7 @@ export function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const nav = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
@@ -51,7 +54,7 @@ export function OrderDetailPage() {
   async function load() {
     setLoading(true);
     try {
-      const all = await listOrders();
+      const [all, svcs] = await Promise.all([listOrders(), listServices()]);
       const o = all.find((x) => String(x.id) === String(id) || x.order_id === id);
       if (!o) {
         toast.error('Buyurtma topilmadi');
@@ -59,6 +62,7 @@ export function OrderDetailPage() {
         return;
       }
       setOrder(o);
+      setServices(svcs);
     } catch (e) {
       toast.error(errorMessage(e));
     } finally {
@@ -130,6 +134,12 @@ export function OrderDetailPage() {
   if (!order) return null;
 
   const statusColor = STATUS_COLOR[order.status] || '';
+  const orderedServices = (order.service_ids ?? [])
+    .map((sid) => services.find((s) => s.id === sid))
+    .filter((s): s is Service => Boolean(s));
+  const missingServiceIds = (order.service_ids ?? []).filter(
+    (sid) => !services.some((s) => s.id === sid),
+  );
 
   return (
     <>
@@ -314,38 +324,88 @@ export function OrderDetailPage() {
           )}
         </div>
 
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="text-pink-400" size={18} />
-              <h3 className="font-semibold">Buyurtma mahsulotlari</h3>
+        {order.items.length > 0 && (
+          <div className="card p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="text-pink-400" size={18} />
+                <h3 className="font-semibold">Buyurtma mahsulotlari</h3>
+              </div>
+              <span className="text-xs text-sub">{order.items.length} ta mahsulot</span>
             </div>
-            <span className="text-xs text-sub">{order.items.length} ta mahsulot</span>
-          </div>
-          <div className="divide-y divide-border">
-            {order.items.map((it, i) => (
-              <div key={i} className="flex items-center gap-3 py-3">
-                <div className="w-12 h-12 rounded-lg bg-panel border border-border overflow-hidden flex items-center justify-center shrink-0">
-                  {it.image ? (
-                    <img src={absUrl(it.image)} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <Package className="text-muted" size={20} />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{it.name}</div>
-                  <div className="text-xs text-sub">
-                    {formatPrice(it.price, order.currency)} × {it.quantity}
-                    {it.size ? ` · ${it.size}` : ''}
+            <div className="divide-y divide-border">
+              {order.items.map((it, i) => (
+                <div key={i} className="flex items-center gap-3 py-3">
+                  <div className="w-12 h-12 rounded-lg bg-panel border border-border overflow-hidden flex items-center justify-center shrink-0">
+                    {it.image ? (
+                      <img src={absUrl(it.image)} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="text-muted" size={20} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{it.name}</div>
+                    <div className="text-xs text-sub">
+                      {formatPrice(it.price, order.currency)} × {it.quantity}
+                      {it.size ? ` · ${it.size}` : ''}
+                    </div>
+                  </div>
+                  <div className="text-emerald-400 font-bold">
+                    {formatPrice(it.price * it.quantity, order.currency)}
                   </div>
                 </div>
-                <div className="text-emerald-400 font-bold">
-                  {formatPrice(it.price * it.quantity, order.currency)}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-          <div className="flex justify-end items-baseline gap-2 pt-4 mt-2 border-t border-border">
+        )}
+
+        {(orderedServices.length > 0 || missingServiceIds.length > 0) && (
+          <div className="card p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Wrench className="text-cyan-400" size={18} />
+                <h3 className="font-semibold">Buyurtma xizmatlari</h3>
+              </div>
+              <span className="text-xs text-sub">
+                {(order.service_ids ?? []).length} ta xizmat
+              </span>
+            </div>
+            <div className="divide-y divide-border">
+              {orderedServices.map((s) => (
+                <div key={s.id} className="flex items-center gap-3 py-3">
+                  <div className="w-12 h-12 rounded-lg bg-panel border border-border overflow-hidden flex items-center justify-center shrink-0">
+                    {s.image ? (
+                      <img src={absUrl(s.image)} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Wrench className="text-muted" size={20} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{s.name}</div>
+                    {s.time && <div className="text-xs text-sub">{s.time}</div>}
+                  </div>
+                  <div className="text-emerald-400 font-bold">
+                    {formatPrice(s.price, order.currency)}
+                  </div>
+                </div>
+              ))}
+              {missingServiceIds.map((sid) => (
+                <div key={`missing-${sid}`} className="flex items-center gap-3 py-3">
+                  <div className="w-12 h-12 rounded-lg bg-panel border border-border flex items-center justify-center shrink-0">
+                    <Wrench className="text-muted" size={20} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sub">Xizmat #{sid}</div>
+                    <div className="text-xs text-muted">o'chirilgan yoki topilmadi</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="card p-5">
+          <div className="flex justify-end items-baseline gap-2">
             <span className="text-sub">Jami:</span>
             <span className="text-emerald-400 font-extrabold text-2xl">
               {formatPrice(order.total, order.currency)}

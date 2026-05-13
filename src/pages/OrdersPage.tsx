@@ -122,7 +122,13 @@ export function OrdersPage() {
                       {formatPrice(o.total, o.currency)}
                     </div>
                     <div className="text-xs text-sub">
-                      {o.items.length} ta mahsulot
+                      {o.items.length > 0 && `${o.items.length} ta mahsulot`}
+                      {o.items.length > 0 && (o.service_ids?.length ?? 0) > 0 && ' · '}
+                      {(o.service_ids?.length ?? 0) > 0 &&
+                        `${o.service_ids?.length} ta xizmat`}
+                      {o.items.length === 0 &&
+                        (o.service_ids?.length ?? 0) === 0 &&
+                        '—'}
                     </div>
                   </div>
                   <ChevronRight size={18} className="text-muted shrink-0" />
