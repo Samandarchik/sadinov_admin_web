@@ -200,7 +200,7 @@ export function ServicesPage() {
           </button>
         }
       />
-      <div className="p-8">
+      <div className="p-4 lg:p-8">
         {loading ? (
           <PageSpinner />
         ) : items.length === 0 ? (

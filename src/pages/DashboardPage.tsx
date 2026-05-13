@@ -71,7 +71,7 @@ export function DashboardPage() {
   return (
     <>
       <Topbar icon={<Home size={20} className="text-gold" />} title="Dashboard" />
-      <div className="p-8">
+      <div className="p-4 lg:p-8">
         {loading ? (
           <PageSpinner />
         ) : (

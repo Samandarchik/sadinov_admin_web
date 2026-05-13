@@ -61,7 +61,7 @@ export function UsersPage() {
           </div>
         }
       />
-      <div className="p-8 space-y-4">
+      <div className="p-4 lg:p-8 space-y-4">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
           <input

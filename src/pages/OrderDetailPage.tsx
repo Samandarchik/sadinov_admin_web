@@ -143,7 +143,7 @@ export function OrderDetailPage() {
         }
       />
 
-      <div className="p-8 space-y-5">
+      <div className="p-4 lg:p-8 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h2 className="text-2xl font-bold font-mono break-all">
