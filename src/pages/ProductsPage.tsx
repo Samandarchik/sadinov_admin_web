@@ -19,7 +19,7 @@ import { formatPrice } from '../lib/format';
 import type { Category, Product } from '../types';
 
 interface ProductDraft extends Partial<Product> {
-  sizes?: Array<{ label: string; price: number }>;
+  sizes?: Array<{ name: string; price: number }>;
 }
 
 const empty: ProductDraft = {
@@ -80,7 +80,12 @@ export function ProductsPage() {
       setEditing({
         ...p,
         images: p.images.length ? [...p.images] : [''],
-        sizes: p.sizes ? [...p.sizes] : [],
+        sizes: p.sizes
+          ? p.sizes.map((s: any) => ({
+              name: s.name ?? s.label ?? '',
+              price: Number(s.price) || 0,
+            }))
+          : [],
       });
     } else {
       setEditing({ ...empty, images: [''], sizes: [] });
@@ -110,8 +115,8 @@ export function ProductsPage() {
       currency: editing.currency || "so'm",
       images: imgs,
       sizes: (editing.sizes ?? [])
-        .filter((s) => s.label && Number(s.price) > 0)
-        .map((s) => ({ label: s.label, price: Number(s.price) })),
+        .filter((s) => s.name && Number(s.price) > 0)
+        .map((s) => ({ name: s.name, price: Number(s.price) })),
       category_id: editing.category_id,
       category_name: cat?.name_uz || editing.category_name || '',
       position: editing.position ?? 0,
@@ -383,7 +388,7 @@ export function ProductsPage() {
                   onClick={() =>
                     setEditing({
                       ...editing,
-                      sizes: [...(editing.sizes ?? []), { label: '', price: 0 }],
+                      sizes: [...(editing.sizes ?? []), { name: '', price: 0 }],
                     })
                   }
                 >
@@ -400,11 +405,11 @@ export function ProductsPage() {
                     <div key={i} className="flex gap-2">
                       <input
                         className="input flex-1"
-                        placeholder="Label (M, L, ...)"
-                        value={s.label}
+                        placeholder="Nom (M, L, ...)"
+                        value={s.name}
                         onChange={(e) => {
                           const next = [...(editing.sizes ?? [])];
-                          next[i] = { ...next[i], label: e.target.value };
+                          next[i] = { ...next[i], name: e.target.value };
                           setEditing({ ...editing, sizes: next });
                         }}
                       />
