@@ -29,15 +29,12 @@ const empty: ProductDraft = {
   description: '',
   description_uz: '',
   description_ru: '',
-  price: 0,
   currency: "so'm",
   images: [''],
   sizes: [],
   category_id: 0,
   category_name: '',
-  position: 0,
   in_stock: true,
-  quantity: 0,
 };
 
 export function ProductsPage() {
@@ -291,8 +288,9 @@ export function ProductsPage() {
                 <input
                   className="input"
                   type="number"
-                  value={editing.price ?? 0}
-                  onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) || 0 })}
+                  value={editing.price ?? ''}
+                  placeholder="0"
+                  onChange={(e) => setEditing({ ...editing, price: e.target.value === '' ? undefined : Number(e.target.value) })}
                 />
               </div>
               <div>
@@ -308,8 +306,9 @@ export function ProductsPage() {
                 <input
                   className="input"
                   type="number"
-                  value={editing.quantity ?? 0}
-                  onChange={(e) => setEditing({ ...editing, quantity: Number(e.target.value) || 0 })}
+                  value={editing.quantity ?? ''}
+                  placeholder="0"
+                  onChange={(e) => setEditing({ ...editing, quantity: e.target.value === '' ? undefined : Number(e.target.value) })}
                 />
               </div>
             </div>
@@ -327,8 +326,9 @@ export function ProductsPage() {
               <input
                 className="input max-w-[100px]"
                 type="number"
-                value={editing.position ?? 0}
-                onChange={(e) => setEditing({ ...editing, position: Number(e.target.value) || 0 })}
+                value={editing.position ?? ''}
+                placeholder="0"
+                onChange={(e) => setEditing({ ...editing, position: e.target.value === '' ? undefined : Number(e.target.value) })}
               />
             </div>
 
@@ -412,10 +412,10 @@ export function ProductsPage() {
                         className="input flex-1"
                         type="number"
                         placeholder="Narx"
-                        value={s.price}
+                        value={s.price || ''}
                         onChange={(e) => {
                           const next = [...(editing.sizes ?? [])];
-                          next[i] = { ...next[i], price: Number(e.target.value) || 0 };
+                          next[i] = { ...next[i], price: e.target.value === '' ? 0 : Number(e.target.value) };
                           setEditing({ ...editing, sizes: next });
                         }}
                       />

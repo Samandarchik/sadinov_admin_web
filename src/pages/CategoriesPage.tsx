@@ -155,8 +155,9 @@ export function CategoriesPage() {
               <input
                 className="input"
                 type="number"
-                value={editing.position ?? 0}
-                onChange={(e) => setEditing({ ...editing, position: Number(e.target.value) || 0 })}
+                value={editing.position ?? ''}
+                placeholder="0"
+                onChange={(e) => setEditing({ ...editing, position: e.target.value === '' ? undefined : Number(e.target.value) })}
               />
             </div>
           </div>

@@ -27,7 +27,6 @@ const empty: ServiceDraft = {
   description_uz: '',
   description_ru: '',
   image: '',
-  price: 0,
   time: '',
   time_uz: '',
   time_ru: '',
@@ -300,8 +299,9 @@ export function ServicesPage() {
               <input
                 className="input"
                 type="number"
-                value={editing.price ?? 0}
-                onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) || 0 })}
+                value={editing.price ?? ''}
+                placeholder="0"
+                onChange={(e) => setEditing({ ...editing, price: e.target.value === '' ? undefined : Number(e.target.value) })}
               />
             </div>
 
