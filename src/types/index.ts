@@ -15,6 +15,10 @@ export interface Product {
   description_uz?: string;
   description_ru?: string;
   price: number;
+  /** Aksiya: eski (chizib tashlanadigan) narx. price — hozirgi/aksiya narxi. */
+  old_price?: number | null;
+  /** Serverda hisoblanadi; aksiya bo'lmasa null. */
+  discount_percent?: number | null;
   currency: string;
   images: string[];
   sizes: Array<{ name: string; price: number }>;
@@ -30,6 +34,8 @@ export interface Banner {
   image_uz: string;
   image_ru: string;
   position: number;
+  /** Banner bosilganda ochiladigan mahsulot (ixtiyoriy). */
+  product_id?: number | null;
 }
 
 export interface Service {

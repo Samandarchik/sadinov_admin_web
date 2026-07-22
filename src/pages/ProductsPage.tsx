@@ -20,6 +20,14 @@ import type { Category, Product } from '../types';
 
 interface ProductDraft extends Partial<Product> {
   sizes?: Array<{ name: string; price: number }>;
+  /** Faqat forma uchun — aksiya bloki ochiqmi. */
+  sale?: boolean;
+}
+
+/** Aksiya foizi; aksiya bo'lmasa null. */
+function discountOf(price?: number | null, oldPrice?: number | null): number | null {
+  if (!price || !oldPrice || oldPrice <= price) return null;
+  return Math.round(((oldPrice - price) * 100) / oldPrice);
 }
 
 const empty: ProductDraft = {
@@ -79,6 +87,7 @@ export function ProductsPage() {
     if (p) {
       setEditing({
         ...p,
+        sale: !!p.old_price && p.old_price > 0,
         images: p.images.length ? [...p.images] : [''],
         sizes: p.sizes
           ? p.sizes.map((s: any) => ({
@@ -103,6 +112,12 @@ export function ProductsPage() {
       toast.error('Kamida 1 ta rasm kerak');
       return;
     }
+    const price = Number(editing.price) || 0;
+    const oldPrice = editing.sale ? Number(editing.old_price) || 0 : 0;
+    if (editing.sale && oldPrice <= price) {
+      toast.error("Eski narx yangi (aksiya) narxidan katta bo'lishi kerak");
+      return;
+    }
     const cat = cats.find((c) => c.id === editing.category_id);
     const data: Partial<Product> = {
       name: editing.name?.trim() || editing.name_uz,
@@ -111,7 +126,8 @@ export function ProductsPage() {
       description: editing.description ?? '',
       description_uz: editing.description_uz ?? '',
       description_ru: editing.description_ru ?? '',
-      price: Number(editing.price) || 0,
+      price,
+      old_price: editing.sale ? oldPrice : null,
       currency: editing.currency || "so'm",
       images: imgs,
       sizes: (editing.sizes ?? [])
@@ -201,14 +217,26 @@ export function ProductsPage() {
                       Mavjud emas
                     </span>
                   )}
+                  {discountOf(p.price, p.old_price) !== null && (
+                    <span className="absolute top-2 right-2 chip bg-red-600 text-white font-bold">
+                      -{discountOf(p.price, p.old_price)}%
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-sub mb-0.5">{p.category_name}</div>
                 <div className="font-semibold text-sm mb-0.5 line-clamp-2">{p.name_uz || p.name}</div>
                 {p.name_ru && (
                   <div className="text-xs text-sub mb-1 line-clamp-1">{p.name_ru}</div>
                 )}
-                <div className="text-gold font-bold text-sm mb-3">
-                  {formatPrice(p.price, p.currency)}
+                <div className="flex items-baseline gap-2 mb-3">
+                  <span className="text-gold font-bold text-sm">
+                    {formatPrice(p.price, p.currency)}
+                  </span>
+                  {discountOf(p.price, p.old_price) !== null && (
+                    <span className="text-xs text-sub line-through">
+                      {formatPrice(p.old_price!, p.currency)}
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-2 mt-auto">
                   <button className="btn-outline flex-1 justify-center text-xs" onClick={() => open(p)}>
@@ -289,7 +317,9 @@ export function ProductsPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="label">Narx</label>
+                <label className="label">
+                  {editing.sale ? 'Yangi narx (aksiya) *' : 'Narx'}
+                </label>
                 <input
                   className="input"
                   type="number"
@@ -317,6 +347,64 @@ export function ProductsPage() {
                 />
               </div>
             </div>
+            <div className="rounded-xl border border-border bg-panel p-3 space-y-3">
+              <div className="flex items-center gap-3">
+                <input
+                  id="sale"
+                  type="checkbox"
+                  checked={!!editing.sale}
+                  onChange={(e) =>
+                    setEditing({
+                      ...editing,
+                      sale: e.target.checked,
+                      old_price: e.target.checked ? editing.old_price : null,
+                    })
+                  }
+                  className="w-4 h-4 accent-gold"
+                />
+                <label htmlFor="sale" className="text-sm font-semibold">
+                  Aksiya (chegirma)
+                </label>
+              </div>
+              {editing.sale && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                  <div>
+                    <label className="label">Eski narx *</label>
+                    <input
+                      className="input"
+                      type="number"
+                      value={editing.old_price ?? ''}
+                      placeholder="0"
+                      onChange={(e) =>
+                        setEditing({
+                          ...editing,
+                          old_price: e.target.value === '' ? null : Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="text-xs text-sub pb-2">
+                    {discountOf(editing.price, editing.old_price) !== null ? (
+                      <>
+                        <span className="line-through">
+                          {formatPrice(editing.old_price!, editing.currency)}
+                        </span>{' '}
+                        →{' '}
+                        <span className="text-gold font-bold">
+                          {formatPrice(editing.price, editing.currency)}
+                        </span>{' '}
+                        <span className="text-red-400 font-bold">
+                          (-{discountOf(editing.price, editing.old_price)}%)
+                        </span>
+                      </>
+                    ) : (
+                      "Eski narx yangi narxdan katta bo'lishi kerak"
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center gap-3">
               <input
                 id="in-stock"

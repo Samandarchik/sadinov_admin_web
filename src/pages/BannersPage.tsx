@@ -11,13 +11,15 @@ import {
   createBanner,
   deleteBanner,
   listBanners,
+  listProducts,
   updateBanner,
 } from '../api/endpoints';
 import { absUrl, errorMessage } from '../api/client';
-import type { Banner } from '../types';
+import type { Banner, Product } from '../types';
 
 export function BannersPage() {
   const [items, setItems] = useState<Banner[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Banner> | null>(null);
   const [confirm, setConfirm] = useState<Banner | null>(null);
@@ -25,7 +27,9 @@ export function BannersPage() {
   async function reload() {
     setLoading(true);
     try {
-      setItems(await listBanners());
+      const [b, p] = await Promise.all([listBanners(), listProducts()]);
+      setItems(b);
+      setProducts(p);
     } catch (e) {
       toast.error(errorMessage(e));
     } finally {
@@ -47,6 +51,7 @@ export function BannersPage() {
         image_uz: editing.image_uz,
         image_ru: editing.image_ru,
         position: editing.position ?? 0,
+        product_id: editing.product_id || null,
       };
       if (editing.id) await updateBanner(editing.id, data);
       else await createBanner(data);
@@ -105,7 +110,23 @@ export function BannersPage() {
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <div className="text-xs text-sub">Tartib: {b.position}</div>
+                  <div className="text-xs text-sub">
+                    <div>Tartib: {b.position}</div>
+                    <div className="mt-0.5">
+                      {b.product_id ? (
+                        <>
+                          Mahsulot:{' '}
+                          <span className="text-gold">
+                            {products.find((p) => p.id === b.product_id)?.name_uz ??
+                              products.find((p) => p.id === b.product_id)?.name ??
+                              `#${b.product_id}`}
+                          </span>
+                        </>
+                      ) : (
+                        'Mahsulot biriktirilmagan'
+                      )}
+                    </div>
+                  </div>
                   <div className="flex gap-2">
                     <button className="btn-outline text-xs" onClick={() => setEditing(b)}>
                       <Pencil size={13} /> Tahrir
@@ -146,6 +167,26 @@ export function BannersPage() {
                 value={editing.image_ru ?? ''}
                 onChange={(v) => setEditing({ ...editing, image_ru: v })}
               />
+            </div>
+            <div>
+              <label className="label">Mahsulot (banner bosilganda ochiladi)</label>
+              <select
+                className="input"
+                value={editing.product_id ?? 0}
+                onChange={(e) =>
+                  setEditing({
+                    ...editing,
+                    product_id: Number(e.target.value) || null,
+                  })
+                }
+              >
+                <option value={0}>Yo'q (banner bosilmaydi)</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    #{p.id} — {p.name_uz || p.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="label">Tartib</label>
