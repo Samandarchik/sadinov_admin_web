@@ -9,6 +9,7 @@ import { BannersPage } from './pages/BannersPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { OrderDetailPage } from './pages/OrderDetailPage';
+import { PromoCodesPage } from './pages/PromoCodesPage';
 import { UsersPage } from './pages/UsersPage';
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="services" element={<ServicesPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="orders/:id" element={<OrderDetailPage />} />
+        <Route path="promo-codes" element={<PromoCodesPage />} />
         <Route path="users" element={<UsersPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

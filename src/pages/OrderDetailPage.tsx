@@ -15,6 +15,7 @@ import {
   Share2,
   Wrench,
   ShoppingBag,
+  Ticket,
   Trash2,
   Truck,
   User,
@@ -405,6 +406,23 @@ export function OrderDetailPage() {
         )}
 
         <div className="card p-5">
+          {order.discount ? (
+            <div className="max-w-xs ml-auto space-y-2 mb-3">
+              <div className="flex justify-between text-sm text-sub">
+                <span>Chegirmagacha</span>
+                <span>{formatPrice(order.total + order.discount, order.currency)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-sub inline-flex items-center gap-1.5">
+                  <Ticket size={14} className="text-gold" />
+                  Promo{order.promo_code ? ` · ${order.promo_code}` : ''}
+                </span>
+                <span className="text-rose-400 font-medium">
+                  −{formatPrice(order.discount, order.currency)}
+                </span>
+              </div>
+            </div>
+          ) : null}
           <div className="flex justify-end items-baseline gap-2">
             <span className="text-sub">Jami:</span>
             <span className="text-emerald-400 font-extrabold text-2xl">

@@ -9,6 +9,7 @@ import {
   LogOut,
   Package,
   ShoppingCart,
+  Ticket,
   Users,
   Wrench,
   X,
@@ -30,6 +31,7 @@ const items: NavItem[] = [
   { to: '/banners', label: 'Bannerlar', icon: LayoutGrid, group: 'katalog' },
   { to: '/services', label: 'Servislar', icon: Wrench, group: 'katalog' },
   { to: '/orders', label: 'Buyurtmalar', icon: ShoppingCart, group: 'savdo' },
+  { to: '/promo-codes', label: 'Promo kodlar', icon: Ticket, group: 'savdo' },
   { to: '/users', label: 'Foydalanuvchilar', icon: Users, group: 'foydalanuvchi' },
 ];
 

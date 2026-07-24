@@ -36,6 +36,8 @@ export interface Banner {
   position: number;
   /** Banner bosilganda ochiladigan mahsulot (ixtiyoriy). */
   product_id?: number | null;
+  /** Banner ustida "AKSIYA" belgisi ko'rsatiladimi. */
+  is_sale?: boolean;
 }
 
 export interface Service {
@@ -80,6 +82,10 @@ export interface Order {
   items: OrderItem[];
   service_ids?: number[];
   total: number;
+  /** Qo'llanilgan promo kod chegirmasi (so'm); yo'q bo'lsa 0. */
+  discount?: number;
+  /** Qo'llanilgan promo kod matni. */
+  promo_code?: string | null;
   currency: string;
   status: OrderStatus;
   created_at: string;
@@ -90,6 +96,28 @@ export interface User {
   id: number;
   phone: string;
   name?: string;
+  created_at?: string;
+}
+
+export type DiscountType = 'percent' | 'fixed';
+
+export interface PromoCode {
+  id: number;
+  code: string;
+  /** 'percent' — foizli chegirma; 'fixed' — qat'iy summa (so'm). */
+  discount_type: DiscountType;
+  /** percent uchun 1..100, fixed uchun so'm miqdori. */
+  discount_value: number;
+  /** Chegirma qo'llanishi uchun minimal buyurtma summasi. */
+  min_order: number;
+  /** Foizli chegirma uchun eng ko'p chegirma (so'm); yo'q bo'lsa null. */
+  max_discount?: number | null;
+  /** Umumiy foydalanish limiti; null — cheksiz. */
+  usage_limit?: number | null;
+  used_count: number;
+  active: boolean;
+  /** Amal qilish muddati (ISO sana); null — muddatsiz. */
+  expires_at?: string | null;
   created_at?: string;
 }
 

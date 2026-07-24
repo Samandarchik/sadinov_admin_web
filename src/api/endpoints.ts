@@ -5,6 +5,7 @@ import type {
   Order,
   OrderStatus,
   Product,
+  PromoCode,
   Service,
   Stats,
   User,
@@ -128,6 +129,23 @@ export async function updateService(id: number, data: Partial<Service>): Promise
 }
 export async function deleteService(id: number): Promise<void> {
   await http.delete(`/services/${id}`);
+}
+
+// --- Promo codes ---
+export async function listPromoCodes(): Promise<PromoCode[]> {
+  const r = await http.get('/admin/promo-codes/');
+  return r.data;
+}
+export async function createPromoCode(data: Partial<PromoCode>): Promise<PromoCode> {
+  const r = await http.post('/admin/promo-codes/', data);
+  return r.data;
+}
+export async function updatePromoCode(id: number, data: Partial<PromoCode>): Promise<PromoCode> {
+  const r = await http.put(`/admin/promo-codes/${id}`, data);
+  return r.data;
+}
+export async function deletePromoCode(id: number): Promise<void> {
+  await http.delete(`/admin/promo-codes/${id}`);
 }
 
 // --- Uploads ---

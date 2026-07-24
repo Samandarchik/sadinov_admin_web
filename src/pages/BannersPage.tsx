@@ -52,6 +52,7 @@ export function BannersPage() {
         image_ru: editing.image_ru,
         position: editing.position ?? 0,
         product_id: editing.product_id || null,
+        is_sale: editing.is_sale ?? true,
       };
       if (editing.id) await updateBanner(editing.id, data);
       else await createBanner(data);
@@ -79,7 +80,7 @@ export function BannersPage() {
         icon={<LayoutGrid size={20} className="text-gold" />}
         title="Bannerlar"
         right={
-          <button className="btn-gold" onClick={() => setEditing({ position: 0 })}>
+          <button className="btn-gold" onClick={() => setEditing({ position: 0, is_sale: true })}>
             <Plus size={16} /> Yangi banner
           </button>
         }
@@ -111,7 +112,16 @@ export function BannersPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <div className="text-xs text-sub">
-                    <div>Tartib: {b.position}</div>
+                    <div>
+                      Tartib: {b.position}
+                      <span
+                        className={`ml-2 px-1.5 py-0.5 rounded font-bold ${
+                          b.is_sale ? 'bg-gold text-black' : 'bg-panel text-sub'
+                        }`}
+                      >
+                        {b.is_sale ? 'AKSIYA' : 'Aksiyasiz'}
+                      </span>
+                    </div>
                     <div className="mt-0.5">
                       {b.product_id ? (
                         <>
@@ -187,6 +197,31 @@ export function BannersPage() {
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="rounded-xl border border-border bg-panel p-3 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold">AKSIYA belgisi</div>
+                <div className="text-xs text-sub mt-0.5">
+                  {editing.is_sale ?? true
+                    ? "Banner ustida \"AKSIYA\" yozuvi ko'rinadi"
+                    : "Banner ustida yozuv ko'rinmaydi"}
+                </div>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={editing.is_sale ?? true}
+                onClick={() => setEditing({ ...editing, is_sale: !(editing.is_sale ?? true) })}
+                className={`relative w-14 h-7 rounded-full transition-colors shrink-0 ${
+                  (editing.is_sale ?? true) ? 'bg-gold' : 'bg-border'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-transform ${
+                    (editing.is_sale ?? true) ? 'translate-x-7' : ''
+                  }`}
+                />
+              </button>
             </div>
             <div>
               <label className="label">Tartib</label>

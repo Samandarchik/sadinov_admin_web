@@ -30,6 +30,11 @@ http.interceptors.response.use(
 export function errorMessage(err: unknown): string {
   if (axios.isAxiosError(err)) {
     const d = err.response?.data;
+    // DRF ValidationError string bilan chaqirilsa top-level massiv qaytadi.
+    if (Array.isArray(d)) {
+      const msgs = d.map((x: any) => (typeof x === 'string' ? x : x?.msg || JSON.stringify(x))).join(', ');
+      if (msgs) return msgs;
+    }
     if (d && typeof d === 'object') {
       if (typeof (d as any).detail === 'string') return (d as any).detail;
       if (Array.isArray((d as any).detail)) {
